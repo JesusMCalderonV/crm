@@ -113,7 +113,7 @@
 			else
 			{
 				
-				var placa = 'http://127.0.0.1:5000/vehiculos/api/'+ select.value;
+				var placa = 'http://thecompany.pythonanywhere.com/vehiculos/api/'+ select.value;
 				fetch(placa, {method: 'GET'})
 				.then(response => response.json())
 				.then(function(data){
@@ -139,7 +139,7 @@
 			else
 			{
 				
-				var proveedor = 'http://127.0.0.1:5000/proveedor/api/'+ select2.value;
+				var proveedor = 'http://thecompany.pythonanywhere.com/proveedor/api/'+ select2.value;
 				fetch(proveedor, {method: 'GET'})
 				.then(response => response.json())
 				.then(function(data){
