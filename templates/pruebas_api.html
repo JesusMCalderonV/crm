@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
+</head>
+<body>
+	<select id="select">
+		<option value="AZF-128">AZF-128</option>
+		<option value="AZF-827">AZF-827</option>
+	</select>
+<script>
+	var select = document.getElementById('select');
+	select.addEventListener("change", event =>{
+		var placa = 'http://127.0.0.1:5000/vehiculos/api/'+ select.value;
+		fetch(placa, {method: 'GET'})
+		.then(response => response.json())
+		.then(function(data){
+			console.log(data);
+		})
+	});
+</script>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</html>

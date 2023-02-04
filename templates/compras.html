@@ -1,0 +1,174 @@
+{%extends 'base.html'%}
+{%block cuerpo%}
+	<div class="contenedor_pagina_ventas">
+		<div class="contenedor_ventas_form">
+			<h2>COMPRAS</h2>
+			<form action="/compras", method="POST">
+				<div class="celda">
+					<label for="pago">Forma de pago: </label>
+					<select name="pago" id="pago">
+						{% for pago in pagos %}
+						<option value="{{pago}}">{{pago}}</option>
+						{%endfor%}
+					</select>
+					<label for="fecha">Fecha:</label>
+					<input type="date" name="fecha" id="fecha">
+				</div>
+				<div class="celda">
+					<label for="concepto">Concepto:</label>
+					<select id="concepto" name="concepto">
+						{%for concepto in conceptos%}
+							<option value="{{concepto}}">{{concepto}}</option>
+						{%endfor%}
+					</select>
+				</div>
+				<div class="celda">
+					<label for="vehiculos">Vehiculo:</label>
+					<select name="vehiculo" id="vehiculos">
+						{%for vehiculo in vehiculos%}
+						<option value="{{vehiculo}}">{{vehiculo}}</option>
+						{%endfor%}
+					</select>
+					<label for="kilometraje">Kilometraje:</label>
+					<input type="text" id="kilometraje" name="kilometraje" value="0" min="0">
+				</div>
+				<div class="celda">
+					<label for="proveedores">Proveedores:</label>
+					<select id="proveedores" name="proveedor">
+						{%for proveedor in proveedores%}
+						<option value="{{proveedor}}">{{proveedor}}</option>
+						{%endfor%}
+					</select>
+					<label for="documento">No. Document:</label>
+					<input type="text" name="documento" id="documento" value="0" min="0" readonly="false">
+					<label for="area">Área:</label>
+					<select id="area" name="area">
+						{%for area in areas%}
+						<option value="{{area}}">{{area}}</option>
+						{%endfor%}
+					</select>
+				</div>
+				<div class="celda">
+					<label for="importe">Importe:</label>
+					<input type="text" name="importe" id="importe" onkeyup="actualizar(this.value)">
+					<label for="iva">IVA:</label>
+					<input type="text" name="iva" id="iva" onkeyup="actualizar_iva(this.value)">
+					<label for="total">Total:</label>
+					<input type="text" name="total" id="total" readonly="false">
+				</div>
+				<div class="celda">
+					<label for="detalle">Detalle:</label>
+					<input type="text" id="detalle" name="detalle" maxlength="200">
+					<button type="submit">Registrar</button>
+					<button type="reset">Cancelar Registro</button>
+				</div>
+			</form>
+		</div>
+
+		<div class="contenedor_ventas_list">
+
+			<table class="lista_ventas">
+				<thead>
+					<tr>
+						<th>no. poliza</th>
+						<th>concepto</th>
+						<th>detalle</th>
+						<th>importe</th>
+						<th>iva</th>
+						<th>total</th>
+						<th>estado</th>
+					</tr>
+				</thead>
+				<tbody id="tbody">
+					{%if ventas != None%}
+						{%for venta in ventas%}
+						<tr>
+							<td><a title="Click aquí para cancelar este registro" href="/cancelar_compra/{{venta}}">{{venta.id}}</a></td>
+							<td>{{venta.concepto}}</td>
+							<td>{{venta.detalle}}</td>
+							<td>{{venta.importe}}</td>
+							<td>{{venta.iva}}</td>
+							<td>{{venta.total}}</td>
+							<td><a class="link" title="Click aquí para confirmar este registro" href="/confirmar_compra/{{venta.id}}">{{venta.estado}}</a></td>
+						</tr>
+						{%endfor%}
+					{%endif%}
+				</tbody>
+			</table>
+		</div>
+		<div class="acciones">
+			<a href="/guardar_compras" class="guardar">
+				<img src="{{url_for('static', filename='img/guardar.png')}}" alt="">
+				Guardar
+			</a>
+		</div>
+	</div>
+	<script type="text/javascript">
+
+		var select = document.getElementById('vehiculos');
+		select.addEventListener("change", event =>{
+			if(select.value == 'NINGUNO'){
+				document.getElementById('kilometraje').value = 0;
+			}
+			else
+			{
+				
+				var placa = 'http://127.0.0.1:5000/vehiculos/api/'+ select.value;
+				fetch(placa, {method: 'GET'})
+				.then(response => response.json())
+				.then(function(data){
+					document.getElementById('kilometraje').value = data;
+				})
+			}
+		});
+
+		function actualizar(importe){
+			document.getElementById('iva').value = (importe * 0.19).toFixed(2);
+			document.getElementById('total').value = (parseFloat(importe) + parseFloat(document.getElementById('iva').value)).toFixed(2);
+		}
+
+		function actualizar_iva(iva){
+			document.getElementById('total').value = (parseFloat(iva) + parseFloat(document.getElementById('importe').value)).toFixed(2);
+		}
+
+		var select2 = document.getElementById('proveedores');
+		select2.addEventListener("change", event =>{
+			if(select2.value == 'NINGUNO'){
+				document.getElementById('documento').value = 0;
+			}
+			else
+			{
+				
+				var proveedor = 'http://127.0.0.1:5000/proveedor/api/'+ select2.value;
+				fetch(proveedor, {method: 'GET'})
+				.then(response => response.json())
+				.then(function(data){
+					document.getElementById('documento').value = data;
+				})
+			}
+		});
+
+
+		let lista_filas = document.getElementsByTagName('tr');
+		for (var i = lista_filas.length - 1; i >= 0; i--) {
+			let datos = lista_filas[i].getElementsByTagName('td');
+			let links = datos[6].getElementsByClassName('link');
+			console.log(links);
+			if(links[0].innerHTML == 'Aceptado'){
+				datos[6].style.background = "#C5FFC5FF";
+			}
+			else{
+				if(links[0].innerHTML == 'Pendiente'){
+					datos[6].style.background = "#B2DBFFFF";
+				}
+				else{
+					datos[6].style.background = "#FF7476FF";
+					links[0].style.color = "#FFF";
+
+				}
+				
+			}
+		}
+
+	</script>
+{%endblock%}
